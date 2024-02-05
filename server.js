@@ -34,4 +34,4 @@ DB.authenticate()
 			console.log(`Server running on port ${process.env.SERVER_PORT}. Let's Go!!`)
 		})
 	})
-	.catch(err => console.log('Database Error', err))
+	.catch(err => console.log('Database Error', err));
