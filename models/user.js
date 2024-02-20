@@ -5,7 +5,7 @@ const DB = require('../db.config')
 
 /*******************************/
 /***Définition du modèle user***/
-const User = DB.define(User,{
+const User = DB.define('User',{
 	id:{
 		type: DataTypes.INTEGER(10),
 		primaryKey: true,
@@ -13,7 +13,6 @@ const User = DB.define(User,{
 	},
 	player_name: {
 		type: DataTypes.STRING(100),
-		defaultValue:'',
 		allowNull: false,
 		unique: true
 	},
@@ -28,13 +27,15 @@ const User = DB.define(User,{
 		type: DataTypes.STRING(64),
 		is: /^[0-9a-f]{64}$/i
 	},
+	is_admin:{
+		type: DataTypes.BOOLEAN,
+		defaultValue: false
+	},
 	book_id:{
 		type: DataTypes.INTEGER(10),
-		allowNull: false
 	},
 	chapter_id:{
 		type: DataTypes.INTEGER(10),
-		allowNull: false
 	}
 },
 {paranoid: true})

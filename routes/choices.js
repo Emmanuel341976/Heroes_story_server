@@ -1,135 +1,126 @@
 /************************************/
 /***Import des modules nécessaires***/
 const express = require('express');
-const bcrypt = require('bcrypt');
-const User = require('../models/user');
+const Choice = require('../models/choice');
 
 /***************************************/
 /***Récupération du routeur d'express***/
 let router = express.Router();
 
 /**********************************/
-/***Routage de la ressource User***/
+/***Routage de la ressource Choice***/
 
 router.get('', (req,res) => {
-	User.findAll()
-		.then( user =>res.json({data:user}))
+	Choice.findAll()
+		.then( choice =>res.json({data:choice}))
 		.catch(err=>res.status(500).json({message:'Database Error'}))
 })
 
 router.get('/:id', (req, res)=>{
-	let userId = parseInt(req.params.id)
+	let choiceId = parseInt(req.params.id)
 
 	// Vérification si le champ id est présent et cohérent
-	if(!userId){
+	if(!choiceId){
 		return res.json(400).json({message:'Missing Parameter'})
 	}
 
-	// Récupération de l'utilisateur
-	User.findOne({where:{id:userId}, raw: true})
-		.then(user =>{
-			//Si l'utilisateur n'existe pas
-			if((user === null)){
-				return res.status(404).json({message : 'This user does not exist'})
+	// Récupération du choix
+	Choice.findOne({where:{id:choiceId}, raw: true})
+		.then(choice =>{
+			//Si le chooix n'existe pas
+			if((choice === null)){
+				return res.status(404).json({message : 'This choice does not exist'})
 			}
-			// Utilisateur trouvé
-			return res.json({data : user})
+			// Choix trouvé
+			return res.json({data : choice})
 
 		})
 		.catch(err=>res.status(500).json({message:'Database Error'}))
 })
 
 router.put('', (req, res) =>{
-	 const{player_name, email, password} = req.body
+	 const{choice, choice_text, chapter_id} = req.body
 
 	//Validation des données reçues
-	if(!player_name || !email || !password){
+	if(!choice || !choice_text || !chapter_id){
 		return res.status(400).json({message : 'Missing data'})
 	}
 
-	User.findOne({where : {email: email},raw : true})
-		.then(user=>{
-			//Vérification si l'utilisateur existe déjà
-			if(user !== null){
-				return res.status(409).json({message: `The user ${player_name} already exist!`})
+	Choice.findOne({where : {choice: choice, chapter_id: chapter_id},raw : true})
+		.then(choice=>{
+			//Vérification si le choix existe déjà
+			if(choice !== null){
+				return res.status(409).json({message: `The choice ${choice} already exist!`})
 			}
-
-			// Hashage du mot de passe utilisateur
-			bcrypt.hash(password, parseInt(process.env.BCRYPT_SALT_ROUNDS))
-				.then(hash=>{
-					req.body.password = hash
-
-					//Création de l'utilisateur
-					User.create(req.body)
-					.then(user=> res.json({message: 'User Created', data:user}))
+					//Création d'un choix
+					Choice.create(req.body)
+					.then(choice=> res.json({message: 'Choice Created', data:choice}))
 					.catch(err=>res.status(500).json({message:'Database Error'}))
 
-				})
-				.catch(err=> res.status(500).json({message : 'Database error'}))
 		})
 		.catch(err=>res.status(500).json({message:'Database Error'}))
 })
 
 router.patch('/:id', (req, res) => {
-	let userId = parseInt(req.params.id)
+	let choiceId = parseInt(req.params.id)
 
 	// Vérification si le champs id est présent et cohérent
-	if (!userId){
+	if (!choiceId){
 		return res.status(400).json({message :'Missing parameter'})
 	}
 	
-	//Recherche de l'utilisateur
-	User.findOne({where : {id: userId}, raw :true})
-		.then(user=>{
-			//Vérifier si l'utilisateur existe
-			if(user === null){
-				return res.status(404).json({message : 'This user does not exist !' })
+	//Recherche du choix
+	Choice.findOne({where : {id: choiceId}, raw :true})
+		.then(choice=>{
+			//Vérifier si le choix existe
+			if(choice === null){
+				return res.status(404).json({message : 'This choice does not exist !' })
 			}
 
-			//Miuse à jour de l'utilisateur
-			User.update(req.body, {where: {id : userId}})
-				.then(user => res.json({message:'User updated'}))
+			//Miuse à jour du choix
+			Choice.update(req.body, {where: {id : choiceId}})
+				.then(choice => res.json({message:'Choice updated'}))
 				.catch(err=>res.status(500).json({message:'Database Error'}))
 		})
 	.catch(err=>err.status(500).json({message:'Database Error'}))
 })
 
 router.delete('/trash/:id', (req, res)=> {
-	let userId = parseInt(req.params.id)
+	let choiceId = parseInt(req.params.id)
 
 	// Vérification si le champs id est présent et cohérent
-	if (!userId){
+	if (!choiceId){
 		return res.status(400).json({message :'Missing parameter'})
 	}
 	
-	// Suppression de l'utilisateur
-	User.destroy({where: {id: userId}})
+	// Suppression du choix
+	Choice.destroy({where: {id: choiceId}})
 		.then (()=> res.status(204).json({}))
 		.catch(err=>res.status(500).json({message:'Database Error'}))
 	})
 
 router.post('untrash/:id', (req, res)=>{
-	let userId = parseInt(req.params.id)
+	let choiceId = parseInt(req.params.id)
 
 	//Vérification si le champ id est présent et cohérent
-	if (!userId){
+	if (!choiceId){
 		return res.status(400).json({message :'Missing parameter'})
 	}
-	User.restore({where : {id : userId}})
+	Choice.restore({where : {id : choiceId}})
 		.then(()=>res.status(204).json({}))
 		.catch(err=>res.status(500).json({message:'Database Error'}))
 	})
 
 router.delete('/:id', (req, res)=> {
-	let userId = parseInt(req.params.id)
+	let choiceId = parseInt(req.params.id)
 
 	// Vérification si le champs id est présent et cohérent
-	if (!userId){
+	if (!choiceId){
 		return res.status(400).json({message :'Missing parameter'})
 	}
 	
-	// Suppression de l'utilisateur
-	User.destroy({where: {id: userId}, force: true})
+	// Suppression du choix
+	Choice.destroy({where: {id: choiceId}, force: true})
 		.then(()=> res.status(204).json({}))
 		.catch(err=>res.status(500).json({message:'Database Error'}))
 	}) 

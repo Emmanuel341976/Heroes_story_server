@@ -1,8 +1,7 @@
 /************************************/
 /***Import des modules nécessaires***/
 const express = require('express');
-const bcrypt = require('bcrypt');
-const User = require('../models/user');
+const Inventory = require('../models/inventory');
 
 /***************************************/
 /***Récupération du routeur d'express***/
@@ -12,124 +11,111 @@ let router = express.Router();
 /***Routage de la ressource User***/
 
 router.get('', (req,res) => {
-	User.findAll()
-		.then( user =>res.json({data:user}))
+	Inventory.findAll()
+		.then( inventory =>res.json({data:inventory}))
 		.catch(err=>res.status(500).json({message:'Database Error'}))
 })
 
 router.get('/:id', (req, res)=>{
-	let userId = parseInt(req.params.id)
+	let inventoryId = parseInt(req.params.id)
 
 	// Vérification si le champ id est présent et cohérent
-	if(!userId){
+	if(!inventoryId){
 		return res.json(400).json({message:'Missing Parameter'})
 	}
 
 	// Récupération de l'utilisateur
-	User.findOne({where:{id:userId}, raw: true})
-		.then(user =>{
+	Inventory.findOne({where:{id:inventoryId}, raw: true})
+		.then(inventory =>{
 			//Si l'utilisateur n'existe pas
-			if((user === null)){
-				return res.status(404).json({message : 'This user does not exist'})
+			if((inventory === null)){
+				return res.status(404).json({message : 'This inventory does not exist'})
 			}
 			// Utilisateur trouvé
-			return res.json({data : user})
+			return res.json({data : inventory})
 
 		})
 		.catch(err=>res.status(500).json({message:'Database Error'}))
 })
 
 router.put('', (req, res) =>{
-	 const{player_name, email, password} = req.body
+	 const{object_name, description, sheet_id} = req.body
 
 	//Validation des données reçues
-	if(!player_name || !email || !password){
+	if(!object_name ||!description || !sheet_id){
 		return res.status(400).json({message : 'Missing data'})
 	}
 
-	User.findOne({where : {email: email},raw : true})
-		.then(user=>{
+	Inventory.findOne({where : {sheet_id: sheet_id},raw : true})
+		.then(inventory=>{
 			//Vérification si l'utilisateur existe déjà
-			if(user !== null){
-				return res.status(409).json({message: `The user ${player_name} already exist!`})
+			if(inventory !== null){
+				return res.status(409).json({message: `The inventory for this story and player already exists!`})
 			}
-
-			// Hashage du mot de passe utilisateur
-			bcrypt.hash(password, parseInt(process.env.BCRYPT_SALT_ROUNDS))
-				.then(hash=>{
-					req.body.password = hash
-
-					//Création de l'utilisateur
-					User.create(req.body)
-					.then(user=> res.json({message: 'User Created', data:user}))
-					.catch(err=>res.status(500).json({message:'Database Error'}))
-
-				})
-				.catch(err=> res.status(500).json({message : 'Database error'}))
 		})
 		.catch(err=>res.status(500).json({message:'Database Error'}))
 })
 
 router.patch('/:id', (req, res) => {
-	let userId = parseInt(req.params.id)
+	let inventoryId = parseInt(req.params.id)
 
 	// Vérification si le champs id est présent et cohérent
-	if (!userId){
+	if (!inventoryId){
 		return res.status(400).json({message :'Missing parameter'})
 	}
 	
 	//Recherche de l'utilisateur
-	User.findOne({where : {id: userId}, raw :true})
-		.then(user=>{
+	Inventory.findOne({where : {id: inventoryId}, raw :true})
+		.then(inventory=>{
 			//Vérifier si l'utilisateur existe
-			if(user === null){
-				return res.status(404).json({message : 'This user does not exist !' })
+			if(inventory === null){
+				return res.status(404).json({message : 'This inventory does not exist !' })
 			}
 
 			//Miuse à jour de l'utilisateur
-			User.update(req.body, {where: {id : userId}})
-				.then(user => res.json({message:'User updated'}))
+			Inventory.update(req.body, {where: {id : inventoryId}})
+				.then(inventory => res.json({message:'Inventory updated'}))
 				.catch(err=>res.status(500).json({message:'Database Error'}))
 		})
 	.catch(err=>err.status(500).json({message:'Database Error'}))
 })
 
 router.delete('/trash/:id', (req, res)=> {
-	let userId = parseInt(req.params.id)
+	let inventoryId = parseInt(req.params.id)
 
 	// Vérification si le champs id est présent et cohérent
-	if (!userId){
+	if (!inventoryId){
 		return res.status(400).json({message :'Missing parameter'})
 	}
 	
 	// Suppression de l'utilisateur
-	User.destroy({where: {id: userId}})
+	Inventory.destroy({where: {id: inventoryId}})
 		.then (()=> res.status(204).json({}))
 		.catch(err=>res.status(500).json({message:'Database Error'}))
 	})
 
 router.post('untrash/:id', (req, res)=>{
-	let userId = parseInt(req.params.id)
+	let inventoryId = parseInt(req.params.id)
 
 	//Vérification si le champ id est présent et cohérent
-	if (!userId){
+	if (!inventoryId){
 		return res.status(400).json({message :'Missing parameter'})
 	}
-	User.restore({where : {id : userId}})
+	Inventory.restore({where : {id : inventoryId}})
 		.then(()=>res.status(204).json({}))
 		.catch(err=>res.status(500).json({message:'Database Error'}))
 	})
 
 router.delete('/:id', (req, res)=> {
-	let userId = parseInt(req.params.id)
+	let inventoryId = parseInt(req.params.id)
 
 	// Vérification si le champs id est présent et cohérent
-	if (!userId){
+	if (!inventoryId){
 		return res.status(400).json({message :'Missing parameter'})
 	}
 	
 	// Suppression de l'utilisateur
-	User.destroy({where: {id: userId}, force: true})
+	Inventory.destroy({where: {id: inventoryId}, force: true})
 		.then(()=> res.status(204).json({}))
 		.catch(err=>res.status(500).json({message:'Database Error'}))
 	}) 

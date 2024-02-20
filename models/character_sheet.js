@@ -5,7 +5,7 @@ const DB = require('../db.config')
 
 /*******************************/
 /***Définition du modèle user***/
-const Character_sheet = DB.define(Character_sheet,{
+const Character_sheet = DB.define('Character_sheet',{
 	id:{
 		type: DataTypes.INTEGER(10),
 		primaryKey: true,
@@ -13,47 +13,45 @@ const Character_sheet = DB.define(Character_sheet,{
 	},
 	initial_stamina: {
 		type: DataTypes.INTEGER(10),
-		defaultValue:'',
+		defaultValue:0,
 		allowNull: false,
 	},
 	stamina_points: {
 		type: DataTypes.INTEGER(10),
-		defaultValue:'',
+		defaultValue:0,
 		allowNull: false,
 	},
 	initial_dexterity: {
 		type: DataTypes.INTEGER(10),
-		defaultValue:'',
+		defaultValue:0,
 		allowNull: false,
 	},
 	dexterity_points: {
 		type: DataTypes.INTEGER(10),
-		defaultValue:'',
+		defaultValue:0,
 		allowNull: false,
 	},
 	initial_PSI: {
 		type: DataTypes.INTEGER(10),
-		defaultValue:'',
+		defaultValue:0,
 		allowNull: false,
 	},
 	PSI_points: {
 		type: DataTypes.INTEGER(10),
-		defaultValue:'',
+		defaultValue:0,
 		allowNull: false,
 	},
 	gold_coins: {
 		type: DataTypes.INTEGER(10),
-		defaultValue:'',
+		defaultValue:0,
 		allowNull: false,
 	},
 	user_id: {
 		type: DataTypes.INTEGER(10),
-		defaultValue:'',
 		allowNull: false,
 	},
 	book_id: {
 		type: DataTypes.INTEGER(10),
-		defaultValue:'',
 		allowNull: false,
 	},
 },

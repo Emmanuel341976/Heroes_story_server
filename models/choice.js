@@ -5,7 +5,7 @@ const DB = require('../db.config')
 
 /*******************************/
 /***Définition du modèle user***/
-const Choice = DB.define(Choice,{
+const Choice = DB.define('Choice',{
 	id:{
 		type: DataTypes.INTEGER(10),
 		primaryKey: true,
@@ -13,17 +13,14 @@ const Choice = DB.define(Choice,{
 	},
 	choice: {
 		type: DataTypes.INTEGER(100),
-		defaultValue:'',
 		allowNull: false,
 	},
 	choice_text: {
 		type: DataTypes.TEXT,
-		defaultValue:'',
 		allowNull: false,
 	},
 	chapter_id: {
 		type: DataTypes.INTEGER(10),
-		defaultValue:'',
 		allowNull: false,
 	},
 },

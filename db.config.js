@@ -17,6 +17,8 @@ let sequelize = new Sequelize(
 
 /*********************************/
 /***Synchronisation des modèles***/
-//sequelize.sync()
+sequelize.sync(()=>{
+	console.log('Database Sync OK');
+})
 
 module.exports = sequelize

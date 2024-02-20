@@ -1,8 +1,7 @@
 /************************************/
 /***Import des modules nécessaires***/
 const express = require('express');
-const bcrypt = require('bcrypt');
-const User = require('../models/user');
+const Character_sheet = require('../models/character_sheet');
 
 /***************************************/
 /***Récupération du routeur d'express***/
@@ -12,124 +11,111 @@ let router = express.Router();
 /***Routage de la ressource User***/
 
 router.get('', (req,res) => {
-	User.findAll()
-		.then( user =>res.json({data:user}))
+	Character_sheet.findAll()
+		.then( character_sheet =>res.json({data:character_sheet}))
 		.catch(err=>res.status(500).json({message:'Database Error'}))
 })
 
 router.get('/:id', (req, res)=>{
-	let userId = parseInt(req.params.id)
+	let character_sheetId = parseInt(req.params.id)
 
 	// Vérification si le champ id est présent et cohérent
-	if(!userId){
+	if(!character_sheetId){
 		return res.json(400).json({message:'Missing Parameter'})
 	}
 
 	// Récupération de l'utilisateur
-	User.findOne({where:{id:userId}, raw: true})
-		.then(user =>{
+	Character_sheet.findOne({where:{id:character_sheetId}, raw: true})
+		.then(character_sheet =>{
 			//Si l'utilisateur n'existe pas
-			if((user === null)){
-				return res.status(404).json({message : 'This user does not exist'})
+			if((character_sheet === null)){
+				return res.status(404).json({message : 'This character_sheet does not exist'})
 			}
 			// Utilisateur trouvé
-			return res.json({data : user})
+			return res.json({data : character_sheet})
 
 		})
 		.catch(err=>res.status(500).json({message:'Database Error'}))
 })
 
 router.put('', (req, res) =>{
-	 const{player_name, email, password} = req.body
+	 const{initial_stamina, stamina_points, initial_dexterity, dexterity_points, initial_PSI, PSI_points, gold_coins, book_id, user_id} = req.body
 
 	//Validation des données reçues
-	if(!player_name || !email || !password){
+	if(!initial_stamina ||!stamina_points || !initial_dexterity || !dexterity_points || !initial_PSI || !PSI_points || !gold_coins || !book_id || !user_id){
 		return res.status(400).json({message : 'Missing data'})
 	}
 
-	User.findOne({where : {email: email},raw : true})
-		.then(user=>{
+	Character_sheet.findOne({where : {book_id: book_id, user_id: user_id},raw : true})
+		.then(character_sheet=>{
 			//Vérification si l'utilisateur existe déjà
-			if(user !== null){
-				return res.status(409).json({message: `The user ${player_name} already exist!`})
+			if(character_sheet !== null){
+				return res.status(409).json({message: `The character sheet for this story and player already exists!`})
 			}
-
-			// Hashage du mot de passe utilisateur
-			bcrypt.hash(password, parseInt(process.env.BCRYPT_SALT_ROUNDS))
-				.then(hash=>{
-					req.body.password = hash
-
-					//Création de l'utilisateur
-					User.create(req.body)
-					.then(user=> res.json({message: 'User Created', data:user}))
-					.catch(err=>res.status(500).json({message:'Database Error'}))
-
-				})
-				.catch(err=> res.status(500).json({message : 'Database error'}))
 		})
 		.catch(err=>res.status(500).json({message:'Database Error'}))
 })
 
 router.patch('/:id', (req, res) => {
-	let userId = parseInt(req.params.id)
+	let character_sheetId = parseInt(req.params.id)
 
 	// Vérification si le champs id est présent et cohérent
-	if (!userId){
+	if (!character_sheetId){
 		return res.status(400).json({message :'Missing parameter'})
 	}
 	
 	//Recherche de l'utilisateur
-	User.findOne({where : {id: userId}, raw :true})
-		.then(user=>{
+	Character_sheet.findOne({where : {id: character_sheetId}, raw :true})
+		.then(character_sheet=>{
 			//Vérifier si l'utilisateur existe
-			if(user === null){
-				return res.status(404).json({message : 'This user does not exist !' })
+			if(character_sheet === null){
+				return res.status(404).json({message : 'This character sheet does not exist !' })
 			}
 
 			//Miuse à jour de l'utilisateur
-			User.update(req.body, {where: {id : userId}})
-				.then(user => res.json({message:'User updated'}))
+			Character_sheet.update(req.body, {where: {id : character_sheetId}})
+				.then(character_sheet => res.json({message:'Character sheet updated'}))
 				.catch(err=>res.status(500).json({message:'Database Error'}))
 		})
 	.catch(err=>err.status(500).json({message:'Database Error'}))
 })
 
 router.delete('/trash/:id', (req, res)=> {
-	let userId = parseInt(req.params.id)
+	let character_sheetId = parseInt(req.params.id)
 
 	// Vérification si le champs id est présent et cohérent
-	if (!userId){
+	if (!character_sheetId){
 		return res.status(400).json({message :'Missing parameter'})
 	}
 	
 	// Suppression de l'utilisateur
-	User.destroy({where: {id: userId}})
+	Character_sheet.destroy({where: {id: character_sheetId}})
 		.then (()=> res.status(204).json({}))
 		.catch(err=>res.status(500).json({message:'Database Error'}))
 	})
 
 router.post('untrash/:id', (req, res)=>{
-	let userId = parseInt(req.params.id)
+	let character_sheetId = parseInt(req.params.id)
 
 	//Vérification si le champ id est présent et cohérent
-	if (!userId){
+	if (!character_sheetId){
 		return res.status(400).json({message :'Missing parameter'})
 	}
-	User.restore({where : {id : userId}})
+	Character_sheet.restore({where : {id : inventoryId}})
 		.then(()=>res.status(204).json({}))
 		.catch(err=>res.status(500).json({message:'Database Error'}))
 	})
 
 router.delete('/:id', (req, res)=> {
-	let userId = parseInt(req.params.id)
+	let character_sheetId = parseInt(req.params.id)
 
 	// Vérification si le champs id est présent et cohérent
-	if (!userId){
+	if (!character_sheetId){
 		return res.status(400).json({message :'Missing parameter'})
 	}
 	
 	// Suppression de l'utilisateur
-	User.destroy({where: {id: userId}, force: true})
+	Character_sheet.destroy({where: {id: character_sheetId}, force: true})
 		.then(()=> res.status(204).json({}))
 		.catch(err=>res.status(500).json({message:'Database Error'}))
 	}) 
